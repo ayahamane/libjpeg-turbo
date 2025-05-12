@@ -1,14 +1,21 @@
 #!/bin/bash
 set -e
 
+REPO_URL="https://github.com/ayahamane/libjpeg-turbo.git"
+BRANCH_NAME="CVE-2020-13790-poc"
+
 echo "[*] Installing dependencies (if needed)..."
 sudo apt update
-sudo apt install -y clang cmake make
+sudo apt install -y git clang cmake make
 
-echo "[*] Cleaning previous build..."
+echo "[*] Cloning vulnerable version..."
+git clone --branch "$BRANCH_NAME" "$REPO_URL" libjpeg-turbo
+cd libjpeg-turbo
+
+echo "[*] Cleaning previous build (if any)..."
 rm -rf build && mkdir build && cd build
 
-echo "[*] Building libjpeg-turbo with ASAN..."
+echo "[*] Building with ASan..."
 CC=clang CFLAGS="-fsanitize=address -g" cmake ..
 make -j$(nproc)
 cd ..
